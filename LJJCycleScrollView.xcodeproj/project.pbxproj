@@ -20,6 +20,7 @@
 		B08C6D5D20D8B77000952ED4 /* 003.jpg in Resources */ = {isa = PBXBuildFile; fileRef = B08C6D5920D8B77000952ED4 /* 003.jpg */; };
 		B08C6D5E20D8B77000952ED4 /* 002.jpg in Resources */ = {isa = PBXBuildFile; fileRef = B08C6D5A20D8B77000952ED4 /* 002.jpg */; };
 		B08C6D5F20D8B77000952ED4 /* 004.jpg in Resources */ = {isa = PBXBuildFile; fileRef = B08C6D5B20D8B77000952ED4 /* 004.jpg */; };
+		B08C6D6120D8CBAC00952ED4 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = B08C6D6020D8CBAC00952ED4 /* README.md */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -62,6 +63,7 @@
 		B08C6D5920D8B77000952ED4 /* 003.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = 003.jpg; sourceTree = "<group>"; };
 		B08C6D5A20D8B77000952ED4 /* 002.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = 002.jpg; sourceTree = "<group>"; };
 		B08C6D5B20D8B77000952ED4 /* 004.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = 004.jpg; sourceTree = "<group>"; };
+		B08C6D6020D8CBAC00952ED4 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -92,6 +94,7 @@
 		B08C6D0F20D89BA000952ED4 = {
 			isa = PBXGroup;
 			children = (
+				B08C6D6020D8CBAC00952ED4 /* README.md */,
 				B08C6D1A20D89BA000952ED4 /* LJJCycleScrollView */,
 				B08C6D3320D89BA300952ED4 /* LJJCycleScrollViewTests */,
 				B08C6D3E20D89BA300952ED4 /* LJJCycleScrollViewUITests */,
@@ -258,6 +261,7 @@
 				B08C6D2520D89BA300952ED4 /* Assets.xcassets in Resources */,
 				B08C6D5D20D8B77000952ED4 /* 003.jpg in Resources */,
 				B08C6D2320D89BA100952ED4 /* Main.storyboard in Resources */,
+				B08C6D6120D8CBAC00952ED4 /* README.md in Resources */,
 				B08C6D5C20D8B77000952ED4 /* 001.jpg in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
