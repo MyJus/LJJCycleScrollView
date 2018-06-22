@@ -26,6 +26,8 @@
 
 @property (nonatomic, weak) id<LJJCycleScrollViewDelegate> delegate;
 @property (strong,nonatomic) UIImage *placeholderImage;
+@property (assign,nonatomic) BOOL pageControlHidden;
+@property (strong,nonatomic) NSMutableDictionary *currentRequestImage;
 
 
 //私有方法
@@ -48,6 +50,7 @@
         curImages = [[NSMutableArray alloc] init];
         imagesArray = nil;
         self.delegate = nil;
+        self.pageControlHidden = NO;
         
         if (scrollView == nil) {
             scrollView = [[UIScrollView alloc] init];
@@ -78,8 +81,11 @@
 - (id)initWithFrame:(CGRect)frame cycleDirection:(LJJCycleDirection)direction pictures:(NSArray *)pictureArray {
     return [self initWithFrame:frame cycleDirection:direction pictures:pictureArray delegate:nil placeholderImage:nil];
 }
+- (id)initWithFrame:(CGRect)frame cycleDirection:(LJJCycleDirection)direction pictures:(NSArray *)pictureArray delegate:(id<LJJCycleScrollViewDelegate>)delegate placeholderImage:(UIImage *)placeholderImage {
+    return [self initWithFrame:frame cycleDirection:direction pictures:pictureArray delegate:delegate placeholderImage:placeholderImage pageControlHidden:NO];
+}
 //指定初始化方法
-- (id)initWithFrame:(CGRect)frame cycleDirection:(LJJCycleDirection)direction pictures:(NSArray *)pictureArray delegate:(id<LJJCycleScrollViewDelegate>)delegate placeholderImage:(UIImage *)placeholderImage
+- (id)initWithFrame:(CGRect)frame cycleDirection:(LJJCycleDirection)direction pictures:(NSArray *)pictureArray delegate:(id<LJJCycleScrollViewDelegate>)delegate placeholderImage:(UIImage *)placeholderImage pageControlHidden:(BOOL)hidden
 {
     self = [super initWithFrame:frame];
     if(self)
@@ -89,6 +95,7 @@
         totalPage = (int)pictureArray.count;
         self.delegate = delegate;
         self.placeholderImage = placeholderImage;
+        self.pageControlHidden = hidden;
         curPage = 1;                                    // 显示的是图片数组里的第一张图片
         curImages = [[NSMutableArray alloc] init];
         imagesArray = [[NSArray alloc] initWithArray:pictureArray];
@@ -100,6 +107,7 @@
             scrollView.showsVerticalScrollIndicator = NO;
             scrollView.pagingEnabled = YES;
             scrollView.delegate = self;
+            scrollView.scrollEnabled = totalPage > 1;
             [self addSubview:scrollView];
         }
         
@@ -110,6 +118,7 @@
             pageControl.frame = CGRectMake(CGRectGetWidth(frame) / 2 - pageSize.width / 2, CGRectGetHeight(frame) - pageSize.height, pageSize.width, pageSize.height);
             pageControl.numberOfPages = totalPage;
             pageControl.currentPage = curPage - 1;
+            pageControl.hidden = (totalPage <= 1 || self.pageControlHidden);
             [self addSubview:pageControl];
         }
         
@@ -186,7 +195,8 @@
     
     UIImageView *thirdImageView = [scrollView viewWithTag:1002];
     [self loadImage:thirdImageView urlString:[curImages objectAtIndex:2]  curPage:curPage index:2];
-    
+    scrollView.scrollEnabled = totalPage > 1;
+    pageControl.hidden = (totalPage <= 1 || self.pageControlHidden);
     [self refreshScrollView];
 }
 //重置代理
@@ -194,20 +204,36 @@
     self.delegate = delegate;
 }
 //修改占位图
-- (void)resetScrollViewplaceholderImage:(UIImage *)placeholderImage {
+- (void)resetScrollViewPlaceholderImage:(UIImage *)placeholderImage {
     self.placeholderImage = placeholderImage;
 }
-
-//MARK: - 刷新pagecontrol
-- (void)refreshPageControl {
+//修改pageControl隐藏状态
+- (void)resetScrollViewPageControlHidden:(BOOL)hidden {
+    self.pageControlHidden = hidden;
+    pageControl.hidden = hidden;
     pageControl.currentPage = curPage - 1;
 }
+//MARK: - 刷新pagecontrol
+- (void)refreshPageControl {
+    if (!self.pageControlHidden) {
+        pageControl.currentPage = curPage - 1;
+    }
+    
+}
+//MARK: - 设置当前展示第几个
+- (void)setCurrentShowIndex:(NSInteger)index {
+    //首先判断是否越界
+    if (index >= totalPage || index < 0) {//越界
+        NSLog(@"设置的展示下标越界了");
+    }else {
+        curPage = (int)index + 1;
+        [self refreshScrollView];
+    }
+}
 
-//MARK: - 刷新展示（主要用于滑动后，位置调整及加载新图片）
+//MARK: - 刷新展示（主要用于滑动后，位置调整及加载新图片，另外重置图片数据源，设置当前展示的下标和初始化也会调用该方法）
 - (void)refreshScrollView {
     [self refreshPageControl];
-    scrollView.scrollEnabled = imagesArray.count > 1;
-    pageControl.hidden = imagesArray.count == 1;
     
     [self getDisplayImagesWithCurpage:curPage];
     if (curImages.count == 0) {
@@ -249,19 +275,18 @@
             // 水平滚动
             if(scrollDirection == LJJCycleDirectionLandscape) {
                 int x = scrollView.contentOffset.x;
-                // 往下翻一张
+                
                 UIImageView *firstImageView = [scrollView viewWithTag:1000];
                 UIImageView *secondImageView = [scrollView viewWithTag:1001];
                 UIImageView *thirdImageView = [scrollView viewWithTag:1002];
-                if(x >= (2*scrollFrame.size.width)) {
+                if(x >= (2*scrollFrame.size.width)) {// 往后翻一张
                     firstImageView.image = secondImageView.image;
                     [self reloadImage:firstImageView sourceIndex:0];
                     secondImageView.image = thirdImageView.image;
                     [self reloadImage:secondImageView sourceIndex:1];
                     [self resetScrollViewContentOffset];
                     [self loadImage:thirdImageView urlString:[curImages objectAtIndex:2] curPage:curPage index:2];
-                }
-                if(x <= 0) {
+                }else if(x <= 0) {// 往前翻一张
                     UIImage *secondImage = secondImageView.image;
                     secondImageView.image = firstImageView.image;
                     [self reloadImage:secondImageView sourceIndex:1];
@@ -269,25 +294,22 @@
                     thirdImageView.image = secondImage;
                     [self reloadImage:thirdImageView sourceIndex:2];
                     [self loadImage:firstImageView urlString:[curImages objectAtIndex:0] curPage:curPage index:0];
+                }else {//重载
+                    [self reloadScrollSubviews];
                 }
-            }
-            
-            // 垂直滚动
-            if(scrollDirection == LJJCycleDirectionPortait) {
+            }else if(scrollDirection == LJJCycleDirectionPortait) {// 垂直滚动
                 int y = scrollView.contentOffset.y;
-                // 往下翻一张
                 UIImageView *firstImageView = [scrollView viewWithTag:1000];
                 UIImageView *secondImageView = [scrollView viewWithTag:1001];
                 UIImageView *thirdImageView = [scrollView viewWithTag:1002];
-                if(y >= 2 * (scrollFrame.size.height)) {
+                if(y >= 2 * (scrollFrame.size.height)) {// 向上滑动一张
                     firstImageView.image = secondImageView.image;
                     [self reloadImage:firstImageView sourceIndex:0];
                     secondImageView.image = thirdImageView.image;
                     [self reloadImage:secondImageView sourceIndex:1];
                     [self resetScrollViewContentOffset];
                     [self loadImage:thirdImageView urlString:[curImages objectAtIndex:2] curPage:curPage index:2];
-                }
-                if(y <= 0) {
+                }else if(y <= 0) {// 往下滑动一张
                     UIImage *secondImage = secondImageView.image;
                     secondImageView.image = firstImageView.image;
                     [self reloadImage:secondImageView sourceIndex:1];
@@ -295,14 +317,13 @@
                     thirdImageView.image = secondImage;
                     [self reloadImage:thirdImageView sourceIndex:2];
                     [self loadImage:firstImageView urlString:[curImages objectAtIndex:0] curPage:curPage index:0];
+                }else {//重载
+                    [self reloadScrollSubviews];
                 }
             }
         }
-        
         [self resetScrollViewContentOffset];
     }
-    
-    
 }
 //scrollView滑动后的调整
 - (void)reloadImage:(UIImageView *)imageView sourceIndex:(NSInteger)curIndex {
@@ -311,6 +332,14 @@
         [self loadImage:imageView urlString:[curImages objectAtIndex:curIndex] curPage:curPage index:curIndex];
     }else {
         NSLog(@"不需要重新加载");
+    }
+}
+
+//重载scrollView的所有子view（重置图片数据源，设置当前展示的下标会调用）
+- (void)reloadScrollSubviews {
+    for (int i = 0; i < 3; i++) {
+        UIImageView *imageView = [scrollView viewWithTag:1000 + i];
+        [self loadImage:imageView urlString:[curImages objectAtIndex:i] curPage:curPage index:i];
     }
 }
 
@@ -432,6 +461,10 @@
 
 //MARK: - 图片加载的工具方法
 - (void)loadImage:(UIImageView *)imageView urlString:(NSString *)urlString curPage:(NSInteger)currentPage index:(NSInteger)index {
+    if (imageView == nil) {
+        NSLog(@"还没有创建ImageView");
+        return;
+    }
     if ([self.placeholderImage isKindOfClass:[UIImage class]]) {
         imageView.image = self.placeholderImage;
     }
@@ -444,7 +477,9 @@
 }
 - (void)loadImage:(UIImageView *)imageView urlString:(NSString *)urlString {
     //还可以使用SD、AF或YYKit进行加载网络图片,现在的方式网路图片没有缓存，当然也可以自己写网络图片的缓存
+    NSString *key = [NSString stringWithFormat:@"%ld",imageView.tag];
     dispatch_async(dispatch_get_global_queue(0, 0), ^{
+        [self.currentRequestImage setValue:urlString forKey:key];
         UIImage *showImage = nil;
         if ([urlString isKindOfClass:[NSString class]]) {
             showImage = [UIImage imageWithData:[NSData dataWithContentsOfURL:[NSURL URLWithString:urlString]]];
@@ -460,11 +495,15 @@
         }
         
         if (showImage != nil) {
-            UIImage *image = [self scaleImage:showImage];
-            //这里还可以增加图片的解压缩
-            dispatch_async(dispatch_get_main_queue(), ^{
-                imageView.image = image;
-            });
+            if ([[self.currentRequestImage valueForKey:key] isEqual:urlString]) {
+                UIImage *image = [self scaleImage:showImage];
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    imageView.image = image;
+                });
+            }else {
+                //请求的图片发生了修改
+                NSLog(@"请求发生了修改");
+            }
         }
     });
 }
@@ -499,6 +538,12 @@
     }
     
     
+}
+- (NSDictionary *)currentRequestImage{
+    if (_currentRequestImage == nil) {
+        _currentRequestImage = [NSMutableDictionary dictionary];
+    }
+    return _currentRequestImage;
 }
 
 

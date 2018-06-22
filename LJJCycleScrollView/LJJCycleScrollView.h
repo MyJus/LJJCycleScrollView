@@ -79,7 +79,7 @@ typedef enum {
 - (id)initWithFrame:(CGRect)frame cycleDirection:(LJJCycleDirection)direction pictures:(NSArray *)pictureArray;
 
 /**
- 指定初始化方法
+ 便利初始化方法
  
  @param frame 展示的位置
  @param direction 滑动方向
@@ -88,6 +88,17 @@ typedef enum {
  @return 返回实例
  */
 - (id)initWithFrame:(CGRect)frame cycleDirection:(LJJCycleDirection)direction pictures:(NSArray *)pictureArray delegate:(id<LJJCycleScrollViewDelegate>)delegate placeholderImage:(UIImage *)placeholderImage;
+/**
+ 指定初始化方法
+ 
+ @param frame 展示的位置
+ @param direction 滑动方向
+ @param pictureArray 图片数据源，（支持URLString、NSURL、ImageData、Image，支持多样混合）
+ @param delegate 代理（用于手机循环滚动图片的点击之间）
+ @param hidden pageControl是否隐藏 YES or NO
+ @return 返回实例
+ */
+- (id)initWithFrame:(CGRect)frame cycleDirection:(LJJCycleDirection)direction pictures:(NSArray *)pictureArray delegate:(id<LJJCycleScrollViewDelegate>)delegate placeholderImage:(UIImage *)placeholderImage pageControlHidden:(BOOL)hidden;
 
 
 /**
@@ -96,24 +107,39 @@ typedef enum {
  @param delegate 回调的代理
  */
 - (void)resetScrollViewDelegate:(id<LJJCycleScrollViewDelegate>)delegate;
-
-
-
 /**
  重置循环滚动的数据源
  
  @param pictureArray 图片数据源
  */
 - (void)resetScrollViewImages:(NSArray *)pictureArray;
-
 /**
  重置占位图
  
  @param placeholderImage 占位图
  */
-- (void)resetScrollViewplaceholderImage:(UIImage *)placeholderImage;
+- (void)resetScrollViewPlaceholderImage:(UIImage *)placeholderImage;
+/**
+ 重置pageControl的隐藏状态
+ 
+ @param hidden pageControl的隐藏状态,YES or NO
+ */
+- (void)resetScrollViewPageControlHidden:(BOOL)hidden;
 
 
+/**
+ 设置当前展示第几个数据
+
+ @param index 角标，从0开始
+ */
+- (void)setCurrentShowIndex:(NSInteger)index;
+
+
+/**
+ 获取当前版本号
+
+ @return 当前的版本号，*.*.*  字符串类型
+ */
 + (NSString *)version;
 
 @end

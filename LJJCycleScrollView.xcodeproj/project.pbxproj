@@ -17,10 +17,10 @@
 		B08C6D4020D89BA300952ED4 /* LJJCycleScrollViewUITests.m in Sources */ = {isa = PBXBuildFile; fileRef = B08C6D3F20D89BA300952ED4 /* LJJCycleScrollViewUITests.m */; };
 		B08C6D4F20D89C0200952ED4 /* LJJCycleScrollView.m in Sources */ = {isa = PBXBuildFile; fileRef = B08C6D4E20D89C0200952ED4 /* LJJCycleScrollView.m */; };
 		B08C6D5C20D8B77000952ED4 /* 001.jpg in Resources */ = {isa = PBXBuildFile; fileRef = B08C6D5820D8B76F00952ED4 /* 001.jpg */; };
-		B08C6D5D20D8B77000952ED4 /* 003.jpg in Resources */ = {isa = PBXBuildFile; fileRef = B08C6D5920D8B77000952ED4 /* 003.jpg */; };
-		B08C6D5E20D8B77000952ED4 /* 002.jpg in Resources */ = {isa = PBXBuildFile; fileRef = B08C6D5A20D8B77000952ED4 /* 002.jpg */; };
-		B08C6D5F20D8B77000952ED4 /* 004.jpg in Resources */ = {isa = PBXBuildFile; fileRef = B08C6D5B20D8B77000952ED4 /* 004.jpg */; };
 		B08C6D6120D8CBAC00952ED4 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = B08C6D6020D8CBAC00952ED4 /* README.md */; };
+		B0ABB14B20DCE0AD00692AA7 /* 002.jpg in Resources */ = {isa = PBXBuildFile; fileRef = B0ABB14820DCE0AC00692AA7 /* 002.jpg */; };
+		B0ABB14C20DCE0AD00692AA7 /* 003.jpg in Resources */ = {isa = PBXBuildFile; fileRef = B0ABB14920DCE0AD00692AA7 /* 003.jpg */; };
+		B0ABB14D20DCE0AD00692AA7 /* 004.jpg in Resources */ = {isa = PBXBuildFile; fileRef = B0ABB14A20DCE0AD00692AA7 /* 004.jpg */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -60,10 +60,10 @@
 		B08C6D4D20D89C0200952ED4 /* LJJCycleScrollView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LJJCycleScrollView.h; sourceTree = "<group>"; };
 		B08C6D4E20D89C0200952ED4 /* LJJCycleScrollView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LJJCycleScrollView.m; sourceTree = "<group>"; };
 		B08C6D5820D8B76F00952ED4 /* 001.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = 001.jpg; sourceTree = "<group>"; };
-		B08C6D5920D8B77000952ED4 /* 003.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = 003.jpg; sourceTree = "<group>"; };
-		B08C6D5A20D8B77000952ED4 /* 002.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = 002.jpg; sourceTree = "<group>"; };
-		B08C6D5B20D8B77000952ED4 /* 004.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = 004.jpg; sourceTree = "<group>"; };
 		B08C6D6020D8CBAC00952ED4 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = SOURCE_ROOT; };
+		B0ABB14820DCE0AC00692AA7 /* 002.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = 002.jpg; sourceTree = "<group>"; };
+		B0ABB14920DCE0AD00692AA7 /* 003.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = 003.jpg; sourceTree = "<group>"; };
+		B0ABB14A20DCE0AD00692AA7 /* 004.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = 004.jpg; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -116,9 +116,9 @@
 			isa = PBXGroup;
 			children = (
 				B08C6D5820D8B76F00952ED4 /* 001.jpg */,
-				B08C6D5A20D8B77000952ED4 /* 002.jpg */,
-				B08C6D5920D8B77000952ED4 /* 003.jpg */,
-				B08C6D5B20D8B77000952ED4 /* 004.jpg */,
+				B0ABB14820DCE0AC00692AA7 /* 002.jpg */,
+				B0ABB14920DCE0AD00692AA7 /* 003.jpg */,
+				B0ABB14A20DCE0AD00692AA7 /* 004.jpg */,
 				B08C6D1B20D89BA000952ED4 /* AppDelegate.h */,
 				B08C6D1C20D89BA000952ED4 /* AppDelegate.m */,
 				B08C6D1E20D89BA000952ED4 /* ViewController.h */,
@@ -255,11 +255,11 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B08C6D5F20D8B77000952ED4 /* 004.jpg in Resources */,
-				B08C6D5E20D8B77000952ED4 /* 002.jpg in Resources */,
+				B0ABB14B20DCE0AD00692AA7 /* 002.jpg in Resources */,
+				B0ABB14C20DCE0AD00692AA7 /* 003.jpg in Resources */,
+				B0ABB14D20DCE0AD00692AA7 /* 004.jpg in Resources */,
 				B08C6D2820D89BA300952ED4 /* LaunchScreen.storyboard in Resources */,
 				B08C6D2520D89BA300952ED4 /* Assets.xcassets in Resources */,
-				B08C6D5D20D8B77000952ED4 /* 003.jpg in Resources */,
 				B08C6D2320D89BA100952ED4 /* Main.storyboard in Resources */,
 				B08C6D6120D8CBAC00952ED4 /* README.md in Resources */,
 				B08C6D5C20D8B77000952ED4 /* 001.jpg in Resources */,
