@@ -49,7 +49,7 @@ typedef enum {
  对进行展示的View进行操作，（加载或设置）
  
  @param cycleScrollView 循环滚动的类
- @param showView 展示的View
+ @param showView 展示的View（是一个UIImageView）
  @param source 资源
  @param index 展示View的下角标，从0开始。比如数据源数组有三张图片，返回的index数值可能是0、1、2
  */
