@@ -23,6 +23,10 @@ typedef enum {
 
 @class LJJCycleScrollView;
 
+
+/**
+ 代理方法
+ */
 @protocol LJJCycleScrollViewDelegate <NSObject>
 @optional
 
@@ -30,24 +34,52 @@ typedef enum {
  代理回调方法，点击选择
  
  @param cycleScrollView 调用代理的类
- @param index 选择的下标，从1开始。比如数据源数组有三张图片，返回的index数值可能是1、2、3
+ @param index 选择的下标，从0开始。比如数据源数组有三张图片，返回的index数值可能是0、1、2
  */
 - (void)cycleScrollViewDelegate:(LJJCycleScrollView *)cycleScrollView didSelectImageView:(int)index;
 /**
  代理回调方法，scrollView滚动到第几张图片
  
  @param cycleScrollView 调用代理的类
- @param index 滚动到的下标，从1开始。比如数据源数组有三张图片，返回的index数值可能是1、2、3
+ @param index 滚动到的下标，从0开始。比如数据源数组有三张图片，返回的index数值可能是0、1、2
  */
 - (void)cycleScrollViewDelegate:(LJJCycleScrollView *)cycleScrollView didScrollImageView:(int)index;
+
+/**
+ 对进行展示的View进行操作，（加载或设置）
+ 
+ @param cycleScrollView 循环滚动的类
+ @param showView 展示的View
+ @param source 资源
+ @param index 展示View的下角标，从0开始。比如数据源数组有三张图片，返回的index数值可能是0、1、2
+ */
+- (void)cycleScrollViewDatasource:(LJJCycleScrollView *)cycleScrollView showView:(UIView *)showView source:(id)source index:(NSInteger)index;
 
 @end
 
 @interface LJJCycleScrollView : UIView
 
+/**
+ 便利初始化方法
+
+ @param frame 展示的位置
+ @param direction 滑动方向
+ @return 返回实例
+ */
+- (id)initWithFrame:(CGRect)frame cycleDirection:(LJJCycleDirection)direction;
 
 /**
- 初始化方法
+ 便利初始化方法
+ 
+ @param frame 展示的位置
+ @param direction 滑动方向
+ @param pictureArray 图片数据源，（支持URLString、NSURL、ImageData、Image，支持多样混合）
+ @return 返回实例
+ */
+- (id)initWithFrame:(CGRect)frame cycleDirection:(LJJCycleDirection)direction pictures:(NSArray *)pictureArray;
+
+/**
+ 指定初始化方法
  
  @param frame 展示的位置
  @param direction 滑动方向
@@ -55,7 +87,7 @@ typedef enum {
  @param delegate 代理（用于手机循环滚动图片的点击之间）
  @return 返回实例
  */
-- (id)initWithFrame:(CGRect)frame cycleDirection:(LJJCycleDirection)direction pictures:(NSArray *)pictureArray delegate:(id<LJJCycleScrollViewDelegate>)delegate;
+- (id)initWithFrame:(CGRect)frame cycleDirection:(LJJCycleDirection)direction pictures:(NSArray *)pictureArray delegate:(id<LJJCycleScrollViewDelegate>)delegate placeholderImage:(UIImage *)placeholderImage;
 
 
 /**
@@ -65,12 +97,24 @@ typedef enum {
  */
 - (void)resetScrollViewDelegate:(id<LJJCycleScrollViewDelegate>)delegate;
 
+
+
 /**
  重置循环滚动的数据源
  
  @param pictureArray 图片数据源
  */
 - (void)resetScrollViewImages:(NSArray *)pictureArray;
+
+/**
+ 重置占位图
+ 
+ @param placeholderImage 占位图
+ */
+- (void)resetScrollViewplaceholderImage:(UIImage *)placeholderImage;
+
+
++ (NSString *)version;
 
 @end
 

@@ -25,6 +25,7 @@
 }
 
 @property (nonatomic, weak) id<LJJCycleScrollViewDelegate> delegate;
+@property (strong,nonatomic) UIImage *placeholderImage;
 
 
 //私有方法
@@ -39,6 +40,7 @@
 
 
 @implementation LJJCycleScrollView
+//MARK: - xib或storyBoard初始化调用的方法
 - (instancetype)initWithCoder:(NSCoder *)aDecoder {
     if (self = [super initWithCoder:aDecoder]) {
         totalPage = 0;
@@ -68,38 +70,16 @@
     }
     return self;
 }
-- (void)layoutSubviews {
-    scrollFrame = self.frame;
-    
-    scrollView.frame = CGRectMake(0, 0, CGRectGetWidth(scrollFrame), CGRectGetHeight(scrollFrame));
-    
-    CGSize pageSize = [pageControl sizeForNumberOfPages:totalPage];
-    pageControl.frame = CGRectMake(CGRectGetWidth(self.frame) / 2 - pageSize.width / 2, CGRectGetHeight(self.frame) - pageSize.height, pageSize.width, pageSize.height);
-    for (int i = 0; i < 3; i ++) {
-        UIImageView *imageView = [scrollView viewWithTag:1000 + i];
-        imageView.frame = CGRectMake(0, 0, CGRectGetWidth(scrollFrame), CGRectGetHeight(scrollFrame));
-        if(scrollDirection == LJJCycleDirectionLandscape) {
-            imageView.frame = CGRectOffset(imageView.frame, scrollFrame.size.width * i, 0);
-        }
-        // 垂直滚动
-        if(scrollDirection == LJJCycleDirectionPortait) {
-            imageView.frame = CGRectOffset(imageView.frame, 0, scrollFrame.size.height * i);
-        }
-    }
-    // 在水平方向滚动
-    if(scrollDirection == LJJCycleDirectionLandscape) {
-        scrollView.contentSize = CGSizeMake(scrollView.frame.size.width * 3,
-                                            scrollView.frame.size.height);
-    }
-    // 在垂直方向滚动
-    if(scrollDirection == LJJCycleDirectionPortait) {
-        scrollView.contentSize = CGSizeMake(scrollView.frame.size.width,
-                                            scrollView.frame.size.height * 3);
-    }
-    [self resetScrollViewContentOffset];
+//MARK: - 代码初始化方法
+//便利初始化方法
+- (id)initWithFrame:(CGRect)frame cycleDirection:(LJJCycleDirection)direction {
+    return [self initWithFrame:frame cycleDirection:direction pictures:nil];
 }
-//MARK: - 初始化
-- (id)initWithFrame:(CGRect)frame cycleDirection:(LJJCycleDirection)direction pictures:(NSArray *)pictureArray delegate:(id<LJJCycleScrollViewDelegate>)delegate
+- (id)initWithFrame:(CGRect)frame cycleDirection:(LJJCycleDirection)direction pictures:(NSArray *)pictureArray {
+    return [self initWithFrame:frame cycleDirection:direction pictures:pictureArray delegate:nil placeholderImage:nil];
+}
+//指定初始化方法
+- (id)initWithFrame:(CGRect)frame cycleDirection:(LJJCycleDirection)direction pictures:(NSArray *)pictureArray delegate:(id<LJJCycleScrollViewDelegate>)delegate placeholderImage:(UIImage *)placeholderImage
 {
     self = [super initWithFrame:frame];
     if(self)
@@ -108,6 +88,7 @@
         scrollDirection = direction;
         totalPage = (int)pictureArray.count;
         self.delegate = delegate;
+        self.placeholderImage = placeholderImage;
         curPage = 1;                                    // 显示的是图片数组里的第一张图片
         curImages = [[NSMutableArray alloc] init];
         imagesArray = [[NSArray alloc] initWithArray:pictureArray];
@@ -147,11 +128,44 @@
     
     return self;
 }
-//重置代理
-- (void)resetScrollViewDelegate:(id<LJJCycleScrollViewDelegate>)delegate {
-    self.delegate = delegate;
+//MARK: - 子视图重新布局（理论上只有Xib和storyboard创建的会调用该方法，当然后来改变frame也会调用）
+- (void)layoutSubviews {
+    scrollFrame = self.frame;
+    
+    scrollView.frame = CGRectMake(0, 0, CGRectGetWidth(scrollFrame), CGRectGetHeight(scrollFrame));
+    
+    CGSize pageSize = [pageControl sizeForNumberOfPages:totalPage];
+    pageControl.frame = CGRectMake(CGRectGetWidth(self.frame) / 2 - pageSize.width / 2, CGRectGetHeight(self.frame) - pageSize.height, pageSize.width, pageSize.height);
+    for (int i = 0; i < 3; i ++) {
+        UIImageView *imageView = [scrollView viewWithTag:1000 + i];
+        if (imageView) {
+            imageView.frame = CGRectMake(0, 0, CGRectGetWidth(scrollFrame), CGRectGetHeight(scrollFrame));
+            if(scrollDirection == LJJCycleDirectionLandscape) {
+                imageView.frame = CGRectOffset(imageView.frame, scrollFrame.size.width * i, 0);
+            }
+            // 垂直滚动
+            if(scrollDirection == LJJCycleDirectionPortait) {
+                imageView.frame = CGRectOffset(imageView.frame, 0, scrollFrame.size.height * i);
+            }
+        }
+    }
+    // 在水平方向滚动
+    if(scrollDirection == LJJCycleDirectionLandscape) {
+        scrollView.contentSize = CGSizeMake(scrollView.frame.size.width * 3,
+                                            scrollView.frame.size.height);
+    }
+    // 在垂直方向滚动
+    if(scrollDirection == LJJCycleDirectionPortait) {
+        scrollView.contentSize = CGSizeMake(scrollView.frame.size.width,
+                                            scrollView.frame.size.height * 3);
+    }
+    [self resetScrollViewContentOffset];
 }
-//MARK: - 修改数据源
+
+
+
+//MARK: - 重置图片数据源、代理、占位图
+//重置图片数据源
 - (void)resetScrollViewImages:(NSArray *)pictureArray {
     totalPage = (int)pictureArray.count;
     curPage = 1;                                    // 显示的是图片数组里的第一张图片
@@ -165,16 +179,25 @@
     
     [self getDisplayImagesWithCurpage:curPage];
     UIImageView *firstImageView = [scrollView viewWithTag:1000];
-    [self loadImage:firstImageView urlString:[curImages objectAtIndex:0]];
+    [self loadImage:firstImageView urlString:[curImages objectAtIndex:0] curPage:curPage index:0];
     
     UIImageView *secondImageView = [scrollView viewWithTag:1001];
-    [self loadImage:secondImageView urlString:[curImages objectAtIndex:1]];
+    [self loadImage:secondImageView urlString:[curImages objectAtIndex:1]  curPage:curPage index:1];
     
     UIImageView *thirdImageView = [scrollView viewWithTag:1002];
-    [self loadImage:thirdImageView urlString:[curImages objectAtIndex:2]];
+    [self loadImage:thirdImageView urlString:[curImages objectAtIndex:2]  curPage:curPage index:2];
     
     [self refreshScrollView];
 }
+//重置代理
+- (void)resetScrollViewDelegate:(id<LJJCycleScrollViewDelegate>)delegate {
+    self.delegate = delegate;
+}
+//修改占位图
+- (void)resetScrollViewplaceholderImage:(UIImage *)placeholderImage {
+    self.placeholderImage = placeholderImage;
+}
+
 //MARK: - 刷新pagecontrol
 - (void)refreshPageControl {
     pageControl.currentPage = curPage - 1;
@@ -192,7 +215,7 @@
     }
     @synchronized(self) {
         NSArray *subViews = [scrollView subviews];
-        if([subViews count] == 0) {
+        if([subViews count] == 0) {//第一次进入，需要创建
             //        [subViews makeObjectsPerformSelector:@selector(removeFromSuperview)];
             for (int i = 0; i < 3; i++) {
                 UIImageView *imageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, CGRectGetWidth(scrollFrame), CGRectGetHeight(scrollFrame))];
@@ -202,7 +225,7 @@
                 //[imageView sd_setImageWithURL:[NSURL URLWithString:[curImages objectAtIndex:i]]];
                 //imageView.image = [][curImages objectAtIndex:i];
 //                if (i == 1) {
-                    [self loadImage:imageView urlString:[curImages objectAtIndex:i]];
+                    [self loadImage:imageView urlString:[curImages objectAtIndex:i] curPage:curPage index:i];
 //                }
                 //图片的显示模式，可以自己设置
                 imageView.contentMode = UIViewContentModeScaleAspectFit;
@@ -222,7 +245,7 @@
                 
                 [scrollView addSubview:imageView];
             }
-        }else {
+        }else {//之后的进入，不需要创建，仅需要调整位置和加载View等
             // 水平滚动
             if(scrollDirection == LJJCycleDirectionLandscape) {
                 int x = scrollView.contentOffset.x;
@@ -232,28 +255,20 @@
                 UIImageView *thirdImageView = [scrollView viewWithTag:1002];
                 if(x >= (2*scrollFrame.size.width)) {
                     firstImageView.image = secondImageView.image;
-                    if (firstImageView.image == nil) {
-                        [self loadImage:firstImageView urlString:[curImages objectAtIndex:0]];
-                    }
+                    [self reloadImage:firstImageView sourceIndex:0];
                     secondImageView.image = thirdImageView.image;
-                    if (secondImageView.image == nil) {
-                        [self loadImage:secondImageView urlString:[curImages objectAtIndex:1]];
-                    }
+                    [self reloadImage:secondImageView sourceIndex:1];
                     [self resetScrollViewContentOffset];
-                    [self loadImage:thirdImageView urlString:[curImages objectAtIndex:2]];
+                    [self loadImage:thirdImageView urlString:[curImages objectAtIndex:2] curPage:curPage index:2];
                 }
                 if(x <= 0) {
                     UIImage *secondImage = secondImageView.image;
                     secondImageView.image = firstImageView.image;
-                    if (secondImageView.image == nil) {
-                        [self loadImage:secondImageView urlString:[curImages objectAtIndex:1]];
-                    }
+                    [self reloadImage:secondImageView sourceIndex:1];
                     [self resetScrollViewContentOffset];
                     thirdImageView.image = secondImage;
-                    if (thirdImageView.image == nil) {
-                        [self loadImage:thirdImageView urlString:[curImages objectAtIndex:2]];
-                    }
-                    [self loadImage:firstImageView urlString:[curImages objectAtIndex:0]];
+                    [self reloadImage:thirdImageView sourceIndex:2];
+                    [self loadImage:firstImageView urlString:[curImages objectAtIndex:0] curPage:curPage index:0];
                 }
             }
             
@@ -266,28 +281,20 @@
                 UIImageView *thirdImageView = [scrollView viewWithTag:1002];
                 if(y >= 2 * (scrollFrame.size.height)) {
                     firstImageView.image = secondImageView.image;
-                    if (firstImageView.image == nil) {
-                        [self loadImage:firstImageView urlString:[curImages objectAtIndex:0]];
-                    }
+                    [self reloadImage:firstImageView sourceIndex:0];
                     secondImageView.image = thirdImageView.image;
-                    if (secondImageView.image == nil) {
-                        [self loadImage:secondImageView urlString:[curImages objectAtIndex:1]];
-                    }
+                    [self reloadImage:secondImageView sourceIndex:1];
                     [self resetScrollViewContentOffset];
-                    [self loadImage:thirdImageView urlString:[curImages objectAtIndex:2]];
+                    [self loadImage:thirdImageView urlString:[curImages objectAtIndex:2] curPage:curPage index:2];
                 }
                 if(y <= 0) {
                     UIImage *secondImage = secondImageView.image;
                     secondImageView.image = firstImageView.image;
-                    if (secondImageView.image == nil) {
-                        [self loadImage:secondImageView urlString:[curImages objectAtIndex:1]];
-                    }
+                    [self reloadImage:secondImageView sourceIndex:1];
                     [self resetScrollViewContentOffset];
                     thirdImageView.image = secondImage;
-                    if (thirdImageView.image == nil) {
-                        [self loadImage:thirdImageView urlString:[curImages objectAtIndex:2]];
-                    }
-                    [self loadImage:firstImageView urlString:[curImages objectAtIndex:0]];
+                    [self reloadImage:thirdImageView sourceIndex:2];
+                    [self loadImage:firstImageView urlString:[curImages objectAtIndex:0] curPage:curPage index:0];
                 }
             }
         }
@@ -297,7 +304,17 @@
     
     
 }
-//MARK: - 重置scrollView便宜位置
+//scrollView滑动后的调整
+- (void)reloadImage:(UIImageView *)imageView sourceIndex:(NSInteger)curIndex {
+    if (imageView.image == nil || imageView.image == self.placeholderImage) {
+        NSLog(@"图片为空，或展示的是占位图");
+        [self loadImage:imageView urlString:[curImages objectAtIndex:curIndex] curPage:curPage index:curIndex];
+    }else {
+        NSLog(@"不需要重新加载");
+    }
+}
+
+//MARK: - 重置scrollView偏移位置
 - (void)resetScrollViewContentOffset {
     if (scrollDirection == LJJCycleDirectionLandscape) {
         [scrollView setContentOffset:CGPointMake(scrollFrame.size.width, 0)];
@@ -322,13 +339,35 @@
     
     return curImages;
 }
-
+//MARK: - 获取下标
+//获取内部使用的下标，从1开始
 - (int)validPageValue:(NSInteger)value {
     
     if(value == 0) value = totalPage;                   // value＝1为第一张，value = 0为前面一张
     if(value == totalPage + 1) value = 1;
     
     return (int)value;
+}
+
+//根据当前展示的下标，获取前一个或后一个的实际下标,从0开始
+- (NSInteger)indexPageValue:(NSInteger)curPage value:(NSInteger)value {
+    NSInteger returnValue = curPage;
+    switch (value) {
+        case 0:
+            returnValue = [self validPageValue:curPage - 1] - 1;
+            break;
+        case 1:
+            returnValue = curPage - 1;
+            break;
+        case 2:
+            returnValue = [self validPageValue:curPage + 1] - 1;
+            break;
+            
+        default:
+            NSLog(@"value数值错误");
+            break;
+    }
+    return returnValue;
 }
 
 //MARK: - scrollViewDelegate
@@ -365,7 +404,7 @@
     }
     
     if ([self.delegate respondsToSelector:@selector(cycleScrollViewDelegate:didScrollImageView:)]) {
-        [self.delegate cycleScrollViewDelegate:self didScrollImageView:curPage];
+        [self.delegate cycleScrollViewDelegate:self didScrollImageView:curPage - 1];
     }
 }
 
@@ -387,10 +426,22 @@
 - (void)handleTap:(UITapGestureRecognizer *)tap {
     
     if ([self.delegate respondsToSelector:@selector(cycleScrollViewDelegate:didSelectImageView:)]) {
-        [self.delegate cycleScrollViewDelegate:self didSelectImageView:curPage];
+        [self.delegate cycleScrollViewDelegate:self didSelectImageView:curPage - 1];
     }
 }
+
 //MARK: - 图片加载的工具方法
+- (void)loadImage:(UIImageView *)imageView urlString:(NSString *)urlString curPage:(NSInteger)currentPage index:(NSInteger)index {
+    if ([self.placeholderImage isKindOfClass:[UIImage class]]) {
+        imageView.image = self.placeholderImage;
+    }
+    //判断是否实现数据加载的代理方法
+    if (self.delegate && [self.delegate respondsToSelector:@selector(cycleScrollViewDatasource:showView:source:index:)]) {
+        [self.delegate cycleScrollViewDatasource:self showView:imageView source:urlString index:[self indexPageValue:curPage value:index]];
+    }else {//没有实现的话，调用默认加载方法
+        [self loadImage:imageView urlString:urlString];
+    }
+}
 - (void)loadImage:(UIImageView *)imageView urlString:(NSString *)urlString {
     //还可以使用SD、AF或YYKit进行加载网络图片,现在的方式网路图片没有缓存，当然也可以自己写网络图片的缓存
     dispatch_async(dispatch_get_global_queue(0, 0), ^{
@@ -449,5 +500,12 @@
     
     
 }
+
+
+//MARK: - 当前版本号
++ (NSString *)version {
+    return [NSString stringWithFormat:@"0.0.%d",2];
+}
+
 
 @end

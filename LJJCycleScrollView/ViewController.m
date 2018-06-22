@@ -32,7 +32,7 @@
     [array addObject:[UIImage imageNamed:@"004.jpg"]];
     [self.cycleScrollView resetScrollViewImages:array];
     
-    LJJCycleScrollView *scrollView = [[LJJCycleScrollView alloc] initWithFrame:CGRectMake(0, 318, CGRectGetWidth([UIScreen mainScreen].bounds), 200) cycleDirection:LJJCycleDirectionLandscape pictures:array delegate:nil];
+    LJJCycleScrollView *scrollView = [[LJJCycleScrollView alloc] initWithFrame:CGRectMake(0, 318, CGRectGetWidth([UIScreen mainScreen].bounds), 200) cycleDirection:LJJCycleDirectionLandscape pictures:array delegate:nil placeholderImage:nil];
     [self.view addSubview:scrollView];
 }
 
